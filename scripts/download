@@ -4,11 +4,17 @@ set -e
 cd $(dirname $0)/..
 
 VERSION=v5.5.1-rancher-1-1
-HASH=dd6dda8081921ac9a91345b1e088787d14a37d0c
+HASH_amd64=dd6dda8081921ac9a91345b1e088787d14a37d0c
+HASH_arm64=bb50797affc973d7ce95b90ae274ffcc1a348c93
+HASH=HASH_${ARCH}
 
-if [ "$(sha1sum -b strongswan/strongswan-${VERSION}.tar.gz 2>/dev/null | awk '{print $1}')" != "$HASH" ]; then
+
+if [ "$(sha1sum -b strongswan/strongswan-${VERSION}.tar.gz 2>/dev/null | awk '{print $1}')" != "${!HASH}" ]; then
     mkdir -p strongswan
-    echo Downloading strongswan-${VERSION}.tar.gz
-    curl -sLf https://github.com/rancher/strongswan-package/releases/download/${VERSION}/strongswan-${VERSION}.tar.gz > strongswan/strongswan-${VERSION}.tar.gz
-    [ "$(sha1sum -b strongswan/strongswan-${VERSION}.tar.gz | awk '{print $1}')" == "$HASH" ]
+    echo Downloading strongswan-${VERSION}_${ARCH}.tar.gz
+    STRONGSWAN_URL_amd64=https://github.com/rancher/strongswan-package/releases/download/${VERSION}/strongswan-${VERSION}.tar.gz
+    STRONGSWAN_URL_arm64=https://github.com/km4rcus/strongswan-package/releases/download/${VERSION}/strongswan-${VERSION}_${ARCH}.tar.gz
+    STRONGSWAN_URL=STRONGSWAN_URL_${ARCH}
+    curl -sLf ${!STRONGSWAN_URL} > strongswan/strongswan-${VERSION}.tar.gz
+    [ "$(sha1sum -b strongswan/strongswan-${VERSION}.tar.gz | awk '{print $1}')" == "${!HASH}" ]
 fi
